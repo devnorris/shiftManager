@@ -16,7 +16,7 @@
     }
   ];
 
-  const availableCompanyShifts = [
+  let availableCompanyShifts = [
     {
       start: '0000',
       end: '2359'
@@ -55,17 +55,16 @@
 
   const updateUserShifts = ({ detail }) => {
     error = null;
+    const shiftSelectedStart = detail.start;
     // create an array of yes/no values to see if selected shift falls into each user shifts start and end times
-    // check array if any yes's then dont allow shit to be added
-    let shiftAllowedArray = usershifts.map(({ start, end }) => {
-      if (detail.start >= start && detail.start <= end) {
-        console.log('true');
-        return true;
-      } else {
-        console.log('false');
-        return false;
-      }
-    });
+    // check array if any yes's then dont allow shift to be added
+
+    let shiftAllowedArray = usershifts.map(
+      ({ start, end }) =>
+        shiftSelectedStart >= start && shiftSelectedStart <= end
+    );
+
+    if (!usershifts.length) usershifts = [...usershifts, detail];
 
     if (shiftAllowedArray?.length) {
       if (shiftAllowedArray.filter(item => item).length) {
@@ -73,16 +72,16 @@
           'Unable to add shift, this shift coinsides with another one of your shifts';
       } else {
         usershifts = [...usershifts, detail];
+        availableCompanyShifts = availableCompanyShifts.filter(
+          availableShift => availableShift !== detail
+        );
       }
-    } else {
-      usershifts = [...usershifts, detail];
     }
   };
 
-  const removeShift = ({ start, end }) => {
-    usershifts = usershifts.filter(
-      shift => shift.start !== start && shift.end !== end
-    );
+  const removeShift = removedShift => {
+    usershifts = usershifts.filter(userShift => removedShift !== userShift);
+    availableCompanyShifts = [...availableCompanyShifts, removedShift];
   };
 </script>
 
