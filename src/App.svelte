@@ -51,35 +51,34 @@
     }
   ];
 
+  $: leftovershiftoptions = availableCompanyShifts.filter(
+    shift => !usershifts.includes(shift)
+  );
+
   let error;
 
   const updateUserShifts = ({ detail }) => {
     error = null;
     const shiftSelectedStart = detail.start;
-    // create an array of yes/no values to see if selected shift falls into each user shifts start and end times
-    // check array if any yes's then dont allow shift to be added
-
-    let shiftAllowedArray = usershifts.map(
-      ({ start, end }) =>
-        shiftSelectedStart >= start && shiftSelectedStart <= end
-    );
+    const shiftSelectedEnd = detail.end;
 
     if (!usershifts.length) usershifts = [...usershifts, detail];
 
-    if (shiftAllowedArray?.length) {
-      if (shiftAllowedArray.filter(item => item).length) {
-        error =
-          'Unable to add shift, this shift coinsides with another one of your shifts';
-      } else {
-        usershifts = [...usershifts, detail];
-        availableCompanyShifts = availableCompanyShifts.filter(
-          availableShift => availableShift !== detail
-        );
-      }
-    }
+    // Filter user shifts based on a few rules below to see if shift selected
+    // interfers with shifts alreayd logged
+    usershifts.filter(
+      ({ start, end }) =>
+        (shiftSelectedStart >= start && shiftSelectedStart <= end) ||
+        (shiftSelectedEnd >= start && shiftSelectedEnd <= end) ||
+        (start >= shiftSelectedStart && start <= shiftSelectedEnd)
+    ).length
+      ? (error =
+          'Unable to add shift, this shift coinsides with another one of your shifts')
+      : (usershifts = [...usershifts, detail]);
   };
 
   const removeShift = removedShift => {
+    error = null;
     usershifts = usershifts.filter(userShift => removedShift !== userShift);
     availableCompanyShifts = [...availableCompanyShifts, removedShift];
   };
@@ -97,10 +96,10 @@
   {/each}
 
   {#if error}
-    <p>{error}</p>
+    <p class="error">{error}</p>
   {/if}
 
-  <EnterShift on:addshift={updateUserShifts} shifts={availableCompanyShifts} />
+  <EnterShift on:addshift={updateUserShifts} shifts={leftovershiftoptions} />
 </div>
 
 <style>
@@ -119,5 +118,12 @@
   }
   .removeX {
     color: red;
+  }
+  .error {
+    color: red;
+    border: 1px solid red;
+    padding: 5px;
+    min-width: 100px;
+    width: auto;
   }
 </style>
