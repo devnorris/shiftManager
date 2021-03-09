@@ -3,13 +3,14 @@
 
   export let shifts;
 
-  let shiftSelected;
+  let shiftSelected = null;
   const dispatch = createEventDispatcher();
 
   const addShift = () => {
     dispatch('addshift', shiftSelected);
     shiftSelected = null;
   };
+  console.log(shiftSelected);
 </script>
 
 <div>
@@ -21,5 +22,5 @@
       </option>
     {/each}
   </select>
-  <button on:click={addShift}>Add</button>
+  <button on:click={addShift} disabled={!shiftSelected}>Add</button>
 </div>

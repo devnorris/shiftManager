@@ -51,7 +51,7 @@
     }
   ];
 
-  $: leftovershiftoptions = availableCompanyShifts.filter(
+  $: filteredCompanyShiftOptions = availableCompanyShifts.filter(
     shift => !usershifts.includes(shift)
   );
 
@@ -62,25 +62,26 @@
     const shiftSelectedStart = detail.start;
     const shiftSelectedEnd = detail.end;
 
-    if (!usershifts.length) usershifts = [...usershifts, detail];
-
-    // Filter user shifts based on a few rules below to see if shift selected
-    // interfers with shifts alreayd logged
-    usershifts.filter(
-      ({ start, end }) =>
-        (shiftSelectedStart >= start && shiftSelectedStart <= end) ||
-        (shiftSelectedEnd >= start && shiftSelectedEnd <= end) ||
-        (start >= shiftSelectedStart && start <= shiftSelectedEnd)
-    ).length
-      ? (error =
-          'Unable to add shift, this shift coinsides with another one of your shifts')
-      : (usershifts = [...usershifts, detail]);
+    if (!usershifts.length) {
+      usershifts = [...usershifts, detail];
+    } else {
+      // Filter user shifts based on a few rules below to see if shift selected
+      // interfers with shifts alreayd logged
+      usershifts.filter(
+        ({ start, end }) =>
+          shiftSelectedStart === start ||
+          shiftSelectedEnd === end ||
+          (shiftSelectedStart > start && shiftSelectedEnd < end)
+      ).length
+        ? (error =
+            'Unable to add shift, this shift coinsides with another one of your shifts')
+        : (usershifts = [...usershifts, detail]);
+    }
   };
 
   const removeShift = removedShift => {
     error = null;
     usershifts = usershifts.filter(userShift => removedShift !== userShift);
-    availableCompanyShifts = [...availableCompanyShifts, removedShift];
   };
 </script>
 
@@ -99,7 +100,10 @@
     <p class="error">{error}</p>
   {/if}
 
-  <EnterShift on:addshift={updateUserShifts} shifts={leftovershiftoptions} />
+  <EnterShift
+    on:addshift={updateUserShifts}
+    shifts={filteredCompanyShiftOptions}
+  />
 </div>
 
 <style>
