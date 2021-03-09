@@ -71,6 +71,8 @@
         ({ start, end }) =>
           shiftSelectedStart === start ||
           shiftSelectedEnd === end ||
+          (shiftSelectedStart > start && shiftSelectedStart < end) ||
+          (shiftSelectedEnd > start && shiftSelectedEnd < end) ||
           (shiftSelectedStart < start && shiftSelectedEnd > end)
       ).length
         ? (error = 'This shift coincides with one of your logged shifts')
