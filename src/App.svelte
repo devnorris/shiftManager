@@ -71,10 +71,9 @@
         ({ start, end }) =>
           shiftSelectedStart === start ||
           shiftSelectedEnd === end ||
-          (shiftSelectedStart > start && shiftSelectedEnd < end)
+          (shiftSelectedStart < start && shiftSelectedEnd > end)
       ).length
-        ? (error =
-            'Unable to add shift, this shift coinsides with another one of your shifts')
+        ? (error = 'This shift coincides with one of your logged shifts')
         : (usershifts = [...usershifts, detail]);
     }
   };
@@ -85,16 +84,23 @@
   };
 </script>
 
-<div>
-  <h2>User Shifts</h2>
-  {#each usershifts as shift}
-    <div class="shiftLog">
-      <p>{shift.start} - {shift.end}</p>
-      <button class="removeButton" on:click|preventDefault={removeShift(shift)}>
-        <p class="removeX">x</p>
-      </button>
-    </div>
-  {/each}
+<div class="shiftLog">
+  <h2>User Shift Log</h2>
+  <div class="userShifts">
+    {#if !usershifts.length}
+      <p style="text-align: center">No shifts logged</p>
+    {/if}
+    {#each usershifts as shift}
+      <div class="individualShift">
+        <p>{shift.start} - {shift.end}</p>
+        <button
+          class="removeButton"
+          on:click|preventDefault={removeShift(shift)}
+          >x
+        </button>
+      </div>
+    {/each}
+  </div>
 
   {#if error}
     <p class="error">{error}</p>
@@ -108,20 +114,43 @@
 
 <style>
   .shiftLog {
+    max-width: 500px;
     display: flex;
-    justify-content: space-between;
-    border: 1px solid blue;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 0 auto;
+  }
+  .userShifts {
+    border: 1px solid black;
     padding: 5px;
-    margin: 10px 0;
-    max-width: 200px;
     width: 100%;
+    max-width: 175px;
+  }
+
+  .individualShift {
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid black;
+  }
+  .individualShift:last-of-type {
+    border-bottom: 0;
   }
   .removeButton {
-    background-color: transparent;
-    border: none;
-  }
-  .removeX {
+    display: flex;
+    align-items: center;
     color: red;
+    background-color: transparent;
+    border: 2px solid red;
+    border-radius: 50%;
+    height: 25px;
+    width: 25px;
+    padding: 0 0 2px 7px;
+    margin: 0;
+    cursor: pointer;
   }
   .error {
     color: red;
@@ -129,5 +158,6 @@
     padding: 5px;
     min-width: 100px;
     width: auto;
+    margin-bottom: 0;
   }
 </style>

@@ -14,6 +14,7 @@
 </script>
 
 <div>
+  <p>Please select a new shift.</p>
   <select bind:value={shiftSelected}>
     <option disabled selected={!shiftSelected}>Choose a shift</option>
     {#each shifts as shift}
